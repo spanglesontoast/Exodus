@@ -1,6 +1,6 @@
 ![alt text](devil.png)
 # infernum
-**Old Skool Irc Client**
+**Old Skool Irc Client With Modern Features**
 ---
 # Goals
 - Make A simple Irc Client Similar to Hexchat
