@@ -1,4 +1,3 @@
-import sys
 import asyncio
 import sys
 import time
@@ -19,11 +18,10 @@ class MainWindow(QWidget):
         sys.exit()
 
     def showdialog(self):
-        d = QDialog()
-        vbox = QGridLayout(d)
-        l1 = QLabel(self)
-        l1.setText("Nework List")
-        vbox.addWidget(l1)
+        dialog = QDialog()
+        vbox = QGridLayout(dialog)
+        networkLabel = QLabel("Nework List")
+        vbox.addWidget(networkLabel)
         b2 = QListWidget(self)
 
         b2.addItem("localhost")
@@ -33,17 +31,23 @@ class MainWindow(QWidget):
         addButton = QPushButton("Add")
         editButton = QPushButton("Edit")
         deleteButton = QPushButton("Delete")
+        nickLabel = QLabel("Nickname")
+        self.userNick = QLineEdit("dave")
+
         vbox.addWidget(b2, 0, 0)
         vbox.addWidget(connectButton, 1, 0)
         vbox.addWidget(addButton, 2, 0)
         vbox.addWidget(editButton, 3, 0)
         vbox.addWidget(deleteButton, 4, 0)
+        vbox.addWidget(nickLabel, 5, 0)
+        vbox.addWidget(self.userNick, 6, 0)
 
-
-        d.setWindowTitle("Networks")
-        d.setWindowIcon(QIcon("./devil.png"))
-        d.setWindowModality(Qt.ApplicationModal)
-        d.exec_()
+        # below we need to grab the username that the user has set in the QlineEdit if there isn't one set we use a default username
+        self.nickname = "dave"
+        dialog.setWindowTitle("Networks")
+        dialog.setWindowIcon(QIcon("./devil.png"))
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.exec_()
 
     def __init__(self):
         super().__init__()
@@ -102,8 +106,8 @@ class MainWindow(QWidget):
         self.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
         self.pushButtonOK.setAutoDefault(True)
 
-        self.editUrl = QLineEdit("", self)
-        self.editUrl.returnPressed.connect(self.pushButtonOK.click)
+        self.sendMessage = QLineEdit("", self)
+        self.sendMessage.returnPressed.connect(self.pushButtonOK.click)
 
         self.splitter = QSplitter(QtCore.Qt.Horizontal)
         self.splitter.addWidget(self.editResponse)
@@ -114,7 +118,7 @@ class MainWindow(QWidget):
         self.tab1.layout.addWidget(self.splitter)
 
         self.tab1.layout.addWidget(self.pushButtonOK)
-        self.tab1.layout.addWidget(self.editUrl)
+        self.tab1.layout.addWidget(self.sendMessage)
 
         ######TAB2########################
 
@@ -153,12 +157,12 @@ class MainWindow(QWidget):
 
     @asyncSlot()
     async def on_pushButtonOK_clicked(self):
-        self.writer.write(bytes("PRIVMSG " + "#general" + " :" + self.editUrl.text() + '\r\n', "UTF-8"))
-        self.editResponse.append(self.botnick + ": " + self.editUrl.text())
+        self.writer.write(bytes("PRIVMSG " + "#general" + " :" + self.sendMessage.text() + '\r\n', "UTF-8"))
+        self.editResponse.append(self.nickname + ": " + self.sendMessage.text())
 
     @asyncSlot()
     async def on_btnFetch_clicked(self):
-        self.botnick = "davekells"
+        #self.botnick = "davekells"
 
         self.editResponse.append('Connected')
 
@@ -173,7 +177,7 @@ class MainWindow(QWidget):
                 i = 0
                 if (i >= 0):
                     writer.write(bytes("JOIN " + "#general" + "\n", "UTF-8"))
-                    i = 1;
+                    i = 1
 
         async def getusers(useful):
             await asyncio.sleep(10)
@@ -185,16 +189,16 @@ class MainWindow(QWidget):
             i = 0
             if (i >= 0):
                 writer.write(bytes("JOIN " + "#general" + "\n", "UTF-8"))
-                i = 1;
+                i = 1
 
         try:
             reader, self.writer = await asyncio.open_connection('localhost', 6667)
 
             millis = int(round(time.time() * 1000))
             self.writer.write(bytes('PING LAG' + str(millis) + '\r\n', "UTF-8"))
-            self.writer.write(bytes("NICK " + self.botnick + "\r\n", "UTF-8"))
+            self.writer.write(bytes("NICK " + self.nickname + "\r\n", "UTF-8"))
             self.writer.write(
-                bytes("USER " + self.botnick + " " + self.botnick + " " + self.botnick + " :infernum2\r\n", "UTF-8"))
+                bytes("USER " + self.nickname + " " + self.nickname + " " + self.nickname + " :infernum2\r\n", "UTF-8"))
 
             while True:
                 data = await reader.readline()
