@@ -1,5 +1,5 @@
 ![alt text](devil.png)
-# infernum
+# exodus
 **Old Skool Irc Client With Modern Features**
 ---
 # Goals
